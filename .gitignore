@@ -34,8 +34,8 @@ ENV/
 *~
 
 # Environment
-.env
-.env.local
+
+
 
 # Models and Data
 models/

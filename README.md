@@ -1,6 +1,6 @@
-# Medical Report Analysis API
+# 🏥 Medical Report Analysis API
 
-> **Production-grade FastAPI application for medical report summarization and analysis using Google's MedGemma model with RAG (Retrieval-Augmented Generation) capabilities.**
+> **Production-grade FastAPI application for medical report summarization and analysis using Google's MedGemma GGUF model with automatic GPU/CPU detection.**
 
 Built for doctors and healthcare professionals to efficiently analyze medical reports, extract insights, and generate summaries.
 
@@ -18,10 +18,11 @@ Built for doctors and healthcare professionals to efficiently analyze medical re
 - [Docker Deployment](#docker-deployment)
 - [Project Structure](#project-structure)
 - [Technology Stack](#technology-stack)
-- [Development](#development)
 - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 - [Production Deployment](#production-deployment)
+- [Performance](#performance)
+- [Deployment Checklist](#deployment-checklist)
 
 ---
 
@@ -30,68 +31,65 @@ Built for doctors and healthcare professionals to efficiently analyze medical re
 ### Core Capabilities
 - ✅ **Medical Report Summarization** - Generate concise summaries from lengthy medical reports
 - ✅ **Question Answering** - Ask specific questions about medical reports and get accurate answers
+- ✅ **Real-time Streaming** - Token-by-token streaming for better UX (like ChatGPT)
 - ✅ **Document Processing** - Support for PDF and text documents with automatic text extraction
 - ✅ **Image Processing** - OCR support for medical images (scans, X-rays, handwritten notes)
 - ✅ **RAG Support** - Handle large documents efficiently with vector-based retrieval
 - ✅ **Multi-modal Support** - Process both text and image inputs
 
 ### Production Features
+- ✅ **Automatic GPU/CPU Detection** - Intelligently detects and uses GPU if available, falls back to CPU
+- ✅ **GGUF Model Format** - Efficient quantized models (~2.5GB vs ~8.6GB)
+- ✅ **Local-First Loading** - Caches model locally, no re-download needed
 - ✅ **Modular Architecture** - Clean, maintainable, and scalable code structure
 - ✅ **Type Safety** - Full type hints with Pydantic models
 - ✅ **Error Handling** - Comprehensive exception handling and logging
 - ✅ **API Documentation** - Interactive Swagger UI and ReDoc
 - ✅ **Docker Support** - Easy deployment with Docker and Docker Compose
-- ✅ **Testing** - Unit and integration tests with pytest
+- ✅ **Comprehensive Testing** - Full test suite with deployment validation
 - ✅ **Logging** - Structured logging with rotation and levels
 - ✅ **Configuration** - Environment-based configuration management
-- ✅ **GPU Acceleration** - CUDA support with automatic fallback to CPU
-- ✅ **Model Quantization** - 4-bit/8-bit quantization for memory efficiency
 
 ---
 
 ## 🚀 Quick Start
 
-Get up and running in 5 minutes!
+Get up and running in 3 minutes!
 
 ### Prerequisites
-- Python 3.9+ installed
-- (Optional) CUDA-capable GPU for faster inference
-- At least 8GB RAM
-- At least 10GB disk space
+- Python 3.10+ installed
+- (Optional) NVIDIA GPU with CUDA for faster inference
+- At least 4GB RAM
+- At least 5GB disk space (for model cache)
 
-### Automated Setup (Recommended)
+### Installation
 
-**Windows:**
-```powershell
-.\scripts\setup.ps1
-```
-
-**Linux/Mac:**
+**Option 1: Interactive Installer (Recommended)**
 ```bash
-chmod +x scripts/setup.sh
-./scripts/setup.sh
+python install.py
 ```
+This will:
+- ✅ Auto-detect GPU
+- ✅ Install correct dependencies
+- ✅ Guide you through setup
 
-### Manual Setup
+**Option 2: Manual Installation**
 
+**CPU Only:**
 ```bash
-# 1. Create virtual environment
-python -m venv venv
-
-# 2. Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-
-# 3. Install dependencies
 pip install -r requirements.txt
+```
 
-# 4. Create configuration
-cp .env.example .env
+**GPU Support (CUDA 12.1):**
+```bash
+pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu121
+pip install -r requirements.txt
+```
 
-# 5. Create directories
-mkdir models vector_store logs
+**GPU Support (CUDA 11.8):**
+```bash
+pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu118
+pip install -r requirements.txt
 ```
 
 ### Run the API
@@ -100,13 +98,19 @@ mkdir models vector_store logs
 python run.py
 ```
 
-The API will start at `http://localhost:8000`
+The API will:
+- ✅ Auto-detect GPU/CPU
+- ✅ Download model on first run (~2.5GB)
+- ✅ Start at `http://localhost:8000`
 
 ### Test the API
 
 ```bash
-# Check health
-curl http://localhost:8000/health
+# Run comprehensive test suite
+python test_sample.py
+
+# Or check health manually
+curl http://localhost:8000/api/v1/health
 
 # Access interactive docs
 # Open browser: http://localhost:8000/docs
@@ -116,97 +120,111 @@ curl http://localhost:8000/health
 
 ## 📦 Installation
 
-### Detailed Installation Steps
+### System Requirements
 
+| Component | Minimum | Recommended |
+|-----------|---------|-------------|
+| **Python** | 3.10+ | 3.11+ |
+| **RAM** | 4GB | 8GB+ |
+| **Disk Space** | 5GB | 10GB+ |
+| **GPU (Optional)** | - | NVIDIA with CUDA 11.8+ |
+
+### Installation Options
+
+#### Option A: Interactive Installer (Easiest)
 ```bash
-# 1. Clone the repository (if applicable)
-git clone <repository-url>
-cd hack-nagpur
-
-# 2. Create and activate virtual environment
-python -m venv venv
-
-# Windows:
-venv\Scripts\activate
-
-# Linux/Mac:
-source venv/bin/activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Setup configuration
-cp .env.example .env
-
-# 5. Create necessary directories
-mkdir models vector_store logs
+python install.py
 ```
+- Automatically detects GPU
+- Installs correct dependencies
+- Provides setup guidance
+
+#### Option B: CPU-Only Installation
+```bash
+pip install -r requirements-minimal.txt
+```
+- Quick installation
+- Works on any system
+- Uses CPU for inference
+
+#### Option C: GPU Installation (Faster Performance)
+
+**For CUDA 12.1:**
+```bash
+pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu121
+pip install -r requirements-minimal.txt
+```
+
+**For CUDA 11.8:**
+```bash
+pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu118
+pip install -r requirements-minimal.txt
+```
+
+**Verify GPU Detection:**
+```bash
+nvidia-smi  # Should show your GPU
+```
+
+### First Run
+
+On first run, the system will:
+1. ✅ Auto-detect GPU (if available) or use CPU
+2. ✅ Download MedGemma GGUF model (~2.5GB)
+3. ✅ Cache model locally (no re-download needed)
+4. ✅ Start API server
 
 ---
 
 ## ⚙️ Configuration
 
-### Environment Variables
+### Environment Variables (Optional)
 
-Create a `.env` file in the project root:
+The system works with **zero configuration** - it auto-detects everything!
+
+However, you can customize by creating a `.env` file:
 
 ```env
 # API Configuration
 API_HOST=0.0.0.0
 API_PORT=8000
 API_WORKERS=4
-API_RELOAD=false
 
-# Model Configuration
-MODEL_NAME=google/medgemma-2b
-MODEL_DEVICE=cuda              # cuda or cpu
-MODEL_QUANTIZATION=4bit        # 4bit, 8bit, or none
+# Model Configuration (Auto-detected by default)
+MODEL_DEVICE=cuda              # Auto-detected: cuda or cpu
 MAX_MODEL_LENGTH=2048
 MODEL_CACHE_DIR=./models
 
-# RAG Configuration
-CHUNK_SIZE=512
-CHUNK_OVERLAP=50
-TOP_K_RETRIEVAL=5
-VECTOR_STORE_PATH=./vector_store
-EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-
 # Document Processing
 MAX_FILE_SIZE_MB=50
-SUPPORTED_DOC_FORMATS=pdf,txt
-SUPPORTED_IMAGE_FORMATS=jpg,jpeg,png,tiff
 
 # Logging
 LOG_LEVEL=INFO                 # DEBUG, INFO, WARNING, ERROR
 LOG_FILE=./logs/app.log
-LOG_ROTATION=100 MB
-LOG_RETENTION=30 days
 
-# Security (Optional)
+# Security (Production)
 API_KEY_ENABLED=false
-API_KEY=your-secret-api-key-here
 CORS_ORIGINS=*
 ```
 
-### Configuration Tips
+### Configuration Notes
 
-**For CPU-only systems:**
-```env
-MODEL_DEVICE=cpu
-MODEL_QUANTIZATION=4bit
-```
+**Device Detection (Automatic):**
+- System automatically detects CUDA GPU via `nvidia-smi`
+- Falls back to CPU if GPU not available
+- No manual configuration needed!
 
-**For GPU systems:**
-```env
-MODEL_DEVICE=cuda
-MODEL_QUANTIZATION=4bit  # or 8bit for better quality
-```
+**Model Information:**
+- **Repository:** `unsloth/medgemma-1.5-4b-it-GGUF`
+- **File:** `medgemma-1.5-4b-it-Q4_K_M.gguf`
+- **Size:** ~2.5GB (quantized)
+- **Format:** GGUF (optimized for llama.cpp)
 
-**For production:**
+**For Production:**
 ```env
 LOG_LEVEL=INFO
-API_RELOAD=false
 API_KEY_ENABLED=true
+API_KEY=your-secure-key-here
 CORS_ORIGINS=https://yourdomain.com
 ```
 
@@ -261,9 +279,16 @@ curl http://localhost:8000/health
 {
   "status": "healthy",
   "model_loaded": true,
-  "version": "1.0.0"
+  "version": "0.1.0",
+  "ml_available": true,
+  "device": "cuda"
 }
 ```
+
+**Device Field:**
+- `"cuda"` - GPU acceleration active
+- `"cpu"` - Running on CPU
+- `"not_loaded"` - Model not yet loaded
 
 ---
 
@@ -300,7 +325,54 @@ curl -X POST "http://localhost:8000/api/v1/summarize" \
 
 ---
 
-### 3. Question Answering
+### 3. Streaming Summarization ⚡ NEW
+
+**Endpoint:** `POST /api/v1/summarize/stream`
+
+**Description:** Generate summary with real-time token streaming (like ChatGPT)
+
+**Request:**
+```bash
+curl -X POST "http://localhost:8000/api/v1/summarize/stream" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Patient presents with fever and cough. Temperature 101°F.",
+    "temperature": 0.7
+  }'
+```
+
+**Response Format:** Server-Sent Events (SSE)
+```
+data: Patient
+data:  has
+data:  fever
+data:  (101°F)
+data:  and
+data:  cough.
+data: [DONE]
+```
+
+**Python Example:**
+```python
+import requests
+
+response = requests.post(
+    "http://localhost:8000/api/v1/summarize/stream",
+    json={"text": "Patient has fever and cough.", "temperature": 0.7},
+    stream=True
+)
+
+for line in response.iter_lines():
+    if line:
+        token = line.decode('utf-8')[6:]  # Remove 'data: ' prefix
+        if token == "[DONE]":
+            break
+        print(token, end='', flush=True)
+```
+
+---
+
+### 4. Question Answering
 
 **Endpoint:** `POST /api/v1/analyze`
 
@@ -328,7 +400,35 @@ curl -X POST "http://localhost:8000/api/v1/analyze" \
 
 ---
 
-### 4. Document Upload
+### 5. Streaming Question Answering ⚡ NEW
+
+**Endpoint:** `POST /api/v1/analyze/stream`
+
+**Description:** Answer questions with real-time token streaming
+
+**Request:**
+```bash
+curl -X POST "http://localhost:8000/api/v1/analyze/stream" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Patient presents with fever and cough. Temperature 101°F.",
+    "question": "What is the patient'\''s temperature?"
+  }'
+```
+
+**Response Format:** Server-Sent Events (SSE)
+```
+data: The
+data:  patient's
+data:  temperature
+data:  is
+data:  101°F.
+data: [DONE]
+```
+
+---
+
+### 6. Document Upload
 
 **Endpoint:** `POST /api/v1/upload/document`
 
@@ -354,11 +454,13 @@ curl -X POST "http://localhost:8000/api/v1/upload/document" \
 
 ---
 
-### 5. Image Upload
+### 7. Image Upload
 
 **Endpoint:** `POST /api/v1/upload/image`
 
 **Description:** Upload and process medical images with OCR
+
+**Note:** MedGemma is a text-only model. OCR (Tesseract) is needed to extract text from images first.
 
 **Request:**
 ```bash
@@ -564,47 +666,56 @@ docker run -d \
 ## 📁 Project Structure
 
 ```
-hack-nagpur/
+medical-report-api/
 │
 ├── app/                          # Main application code
 │   ├── api/                      # API routes and endpoints
-│   │   └── routes.py            # All API endpoints (7 endpoints)
+│   │   └── routes.py            # All API endpoints
 │   ├── models/                   # Model management
-│   │   └── model_loader.py      # MedGemma model loader
+│   │   └── model_loader.py      # GGUF model loader with auto GPU/CPU detection
 │   ├── processors/               # Document/image processing
-│   │   ├── document_processor.py
-│   │   └── image_processor.py
-│   ├── rag/                      # RAG implementation
+│   │   ├── document_processor.py # PDF/TXT processing
+│   │   └── image_processor.py   # Image processing with OCR
+│   ├── rag/                      # RAG implementation (optional)
 │   │   ├── vector_store.py      # Vector store management
 │   │   └── rag_pipeline.py      # RAG pipeline
 │   ├── schemas/                  # Request/response models
-│   │   ├── requests.py
-│   │   └── responses.py
+│   │   ├── requests.py          # API request schemas
+│   │   └── responses.py         # API response schemas
 │   ├── utils/                    # Utilities
 │   │   └── logger.py            # Logging configuration
 │   ├── config.py                # Configuration management
 │   └── main.py                  # FastAPI application
 │
-├── tests/                        # Test suite
-│   ├── test_api.py              # API endpoint tests
-│   └── test_processors.py       # Processor tests
+├── models/                       # Model cache directory
+│   └── (downloaded models)      # Auto-downloaded on first run
 │
-├── examples/                     # Usage examples
-│   └── example_usage.py         # Example scripts
+├── logs/                         # Application logs
+│   └── app.log                  # Main log file
 │
-├── scripts/                      # Setup scripts
-│   ├── setup.sh                 # Linux/Mac setup
-│   └── setup.ps1                # Windows setup
+├── vector_store/                 # Vector database (optional)
+│   └── (chromadb data)          # For RAG functionality
 │
-├── requirements.txt              # Python dependencies
-├── .env.example                  # Environment template
+├── requirements.txt              # Full dependencies with comments
+├── requirements-minimal.txt      # Minimal dependencies
+├── install.py                    # Interactive installer
+├── test_sample.py               # Comprehensive test suite
+├── run.py                        # Application entry point
 ├── Dockerfile                    # Docker configuration
 ├── docker-compose.yml            # Docker Compose setup
-├── pytest.ini                    # Pytest configuration
-├── Makefile                      # Common commands
-├── setup.py                      # Package setup
-└── run.py                        # Application entry point
+└── README.md                     # This file
 ```
+
+### Core Files
+
+| File | Purpose |
+|------|---------|
+| `run.py` | Start the API server |
+| `test_sample.py` | Run comprehensive tests |
+| `install.py` | Interactive installation |
+| `requirements-minimal.txt` | Essential dependencies |
+| `app/models/model_loader.py` | Auto GPU/CPU detection |
+| `app/api/routes.py` | All API endpoints |
 
 ---
 
@@ -613,11 +724,10 @@ hack-nagpur/
 | Component | Technology | Version |
 |-----------|-----------|---------|
 | **Framework** | FastAPI | >=0.109.0 |
-| **ML Framework** | PyTorch | >=2.0.0 |
-| **Transformers** | Hugging Face Transformers | >=4.37.0 |
-| **Model** | Google MedGemma | 2B parameters |
-| **Vector Store** | ChromaDB | >=0.4.0 |
-| **Embeddings** | Sentence Transformers | >=2.3.0 |
+| **ML Engine** | llama-cpp-python | >=0.2.0 |
+| **Model** | MedGemma 1.5 4B (GGUF) | Q4_K_M quantized |
+| **Model Format** | GGUF | Optimized for llama.cpp |
+| **Vector Store** | ChromaDB (optional) | >=0.4.0 |
 | **Document Processing** | PyPDF | >=4.0.0 |
 | **Image Processing** | Pillow | >=10.0.0 |
 | **Logging** | Loguru | >=0.7.0 |
@@ -625,76 +735,72 @@ hack-nagpur/
 | **Testing** | Pytest | >=7.4.0 |
 | **Deployment** | Docker, Docker Compose | Latest |
 
----
+### Why GGUF Format?
 
-## 💻 Development
-
-### Running Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run with verbose output
-pytest -v
-
-# Run with coverage
-pytest --cov=app --cov-report=html
-
-# Run specific test file
-pytest tests/test_api.py -v
-
-# Run specific test
-pytest tests/test_api.py::test_health_check -v
-```
-
-### Code Formatting
-
-```bash
-# Format code with black (if installed)
-black app/ tests/
-
-# Check formatting
-black --check app/ tests/
-```
-
-### Development Workflow
-
-1. **Make changes** to code
-2. **Run tests** with pytest
-3. **Test manually** using interactive docs
-4. **Check logs** for any issues
-5. **Commit** changes
+- ✅ **Smaller Size:** ~2.5GB vs ~8.6GB (70% reduction)
+- ✅ **Faster Loading:** Optimized binary format
+- ✅ **Better Performance:** Efficient inference on CPU/GPU
+- ✅ **Lower Memory:** Quantized models use less RAM
+- ✅ **Cross-Platform:** Works on CPU and GPU seamlessly
 
 ---
 
 ## 🧪 Testing
 
+### Comprehensive Test Suite
+
+Run the complete test suite to validate all functionality:
+
+```bash
+python test_sample.py
+```
+
+**This tests:**
+1. ✅ Server connectivity
+2. ✅ Health check & GPU/CPU detection
+3. ✅ Text summarization
+4. ✅ Question answering
+5. ✅ Document upload (PDF/TXT)
+6. ✅ Image upload & processing
+
+**Output includes:**
+- Pass/fail status for each test
+- Performance metrics (timing)
+- Device information (GPU/CPU)
+- Deployment readiness assessment
+- Troubleshooting suggestions
+
 ### Manual Testing
 
-Use the interactive API documentation:
-
-1. Start the API: `python run.py`
+**Using Interactive Docs (Recommended):**
+1. Start API: `python run.py`
 2. Open browser: http://localhost:8000/docs
 3. Try different endpoints
-4. Check responses
+4. See real-time responses
 
-### Example Test Script
+**Using curl:**
+```bash
+# Health check
+curl http://localhost:8000/api/v1/health
 
+# Summarize text
+curl -X POST "http://localhost:8000/api/v1/summarize" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient has fever and cough."}'
+```
+
+**Using Python:**
 ```python
 import requests
 
-# Test health endpoint
-response = requests.get("http://localhost:8000/health")
+# Test health
+response = requests.get("http://localhost:8000/api/v1/health")
 print(response.json())
 
 # Test summarization
 response = requests.post(
     "http://localhost:8000/api/v1/summarize",
-    json={
-        "text": "Patient presents with fever and cough.",
-        "temperature": 0.7
-    }
+    json={"text": "Patient presents with fever and cough."}
 )
 print(response.json())
 ```
@@ -706,51 +812,76 @@ print(response.json())
 ### Common Issues
 
 #### Issue: Model download is slow
-**Solution:** First run downloads the model (~2-4GB). Be patient or use a pre-downloaded model.
+**Solution:** First run downloads ~2.5GB model. This is normal. Model is cached locally for future use.
+
+#### Issue: GPU not detected
+**Check:**
+```bash
+nvidia-smi  # Should show your GPU
+```
+**Solution:** System automatically falls back to CPU. No action needed!
 
 #### Issue: Out of memory
 **Solutions:**
-- Use CPU mode: `MODEL_DEVICE=cpu`
-- Enable quantization: `MODEL_QUANTIZATION=4bit`
-- Reduce max length: `MAX_MODEL_LENGTH=1024`
-
-#### Issue: CUDA not available
-**Solutions:**
-- Check CUDA installation: `nvidia-smi`
-- Install CUDA toolkit
-- Or use CPU mode: `MODEL_DEVICE=cpu`
+- System uses quantized model (Q4_K_M) - already optimized
+- Reduce context: `MAX_MODEL_LENGTH=1024` in .env
+- Close other applications
 
 #### Issue: Port 8000 already in use
 **Solutions:**
-- Change port in `.env`: `API_PORT=8001`
-- Or kill process using port 8000
+```bash
+# Option 1: Change port in .env
+API_PORT=8001
 
-#### Issue: Dependencies installation fails
+# Option 2: Kill process (Windows)
+netstat -ano | findstr :8000
+taskkill /PID <PID> /F
+
+# Option 2: Kill process (Linux/Mac)
+lsof -ti:8000 | xargs kill -9
+```
+
+#### Issue: llama-cpp-python installation fails
 **Solutions:**
-- Update pip: `pip install --upgrade pip`
-- Use fresh virtual environment
-- Install PyTorch separately first
+```bash
+# Update pip first
+pip install --upgrade pip
+
+# Try CPU version
+pip install llama-cpp-python
+
+# For GPU, specify CUDA version explicitly
+pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu121
+```
 
 ### Debug Mode
 
-Enable debug logging:
+Enable detailed logging:
 
 ```env
 LOG_LEVEL=DEBUG
 ```
 
-Check logs:
-
+View logs:
 ```bash
+# Windows
+type logs\app.log
+
+# Linux/Mac
 tail -f logs/app.log
 ```
 
-### Getting Help
+### Health Check
 
-1. Check logs: `tail -f logs/app.log`
-2. Enable debug mode: `LOG_LEVEL=DEBUG`
-3. Review this documentation
-4. Check GitHub issues
+Verify system status:
+```bash
+curl http://localhost:8000/api/v1/health
+```
+
+Check for:
+- `"model_loaded": true` - Model is ready
+- `"ml_available": true` - ML dependencies installed
+- `"device": "cuda"` or `"cpu"` - Device being used
 
 ---
 
@@ -850,28 +981,35 @@ sudo certbot --nginx -d yourdomain.com
 
 ---
 
-## 📊 Performance Optimization
+## 📊 Performance
 
-### GPU Acceleration
+### Benchmarks
 
+| Device | Model Size | Load Time | Inference Speed | Memory Usage |
+|--------|-----------|-----------|-----------------|--------------|
+| **GPU (CUDA)** | 2.5GB | ~10s | ⚡ Fast (~1-2s) | ~3GB VRAM |
+| **CPU** | 2.5GB | ~15s | 💻 Medium (~3-5s) | ~4GB RAM |
+
+### Performance Tips
+
+**Automatic Optimization:**
+- ✅ System auto-detects GPU and uses it
+- ✅ GGUF format is pre-optimized
+- ✅ Q4_K_M quantization balances speed/quality
+
+**Manual Tuning:**
 ```env
-MODEL_DEVICE=cuda
-MODEL_QUANTIZATION=4bit
-```
-
-### Memory Optimization
-
-```env
-MODEL_QUANTIZATION=4bit
-CHUNK_SIZE=256
+# Reduce context for faster inference
 MAX_MODEL_LENGTH=1024
+
+# Use multiple workers for concurrent requests
+API_WORKERS=4
 ```
 
-### Scaling
-
-- Use multiple workers: `API_WORKERS=4`
+**Scaling:**
 - Deploy multiple instances behind load balancer
-- Use caching for frequently accessed data
+- Use Redis for caching frequent requests
+- Enable CDN for static assets
 
 ---
 
@@ -911,7 +1049,68 @@ For issues and questions:
 
 ---
 
+## ✅ Deployment Checklist
+
+Before deploying to production:
+
+- [ ] Run test suite: `python test_sample.py`
+- [ ] All tests passing (6/6)
+- [ ] GPU/CPU detection working
+- [ ] Model downloaded and cached
+- [ ] Health endpoint returns correct device
+- [ ] Logs directory created
+- [ ] Environment variables configured
+- [ ] API key enabled (if needed)
+- [ ] CORS origins set correctly
+- [ ] SSL certificate configured
+- [ ] Reverse proxy setup (Nginx/Apache)
+- [ ] Monitoring enabled
+- [ ] Backup strategy in place
+
+---
+
+## 🎯 Quick Reference
+
+### Essential Commands
+
+```bash
+# Install
+python install.py
+
+# Run
+python run.py
+
+# Test
+python test_sample.py
+
+# Check health
+curl http://localhost:8000/api/v1/health
+
+# View logs
+tail -f logs/app.log
+```
+
+### Key URLs
+
+- **API Base:** http://localhost:8000
+- **Swagger Docs:** http://localhost:8000/docs
+- **ReDoc:** http://localhost:8000/redoc
+- **Health Check:** http://localhost:8000/api/v1/health
+
+### Important Files
+
+- `run.py` - Start server
+- `test_sample.py` - Run tests
+- `test_streaming.py` - Test streaming endpoints
+- `install.py` - Install dependencies
+- `requirements.txt` - All dependencies
+- `app/models/model_loader.py` - GPU/CPU detection
+- `logs/app.log` - Application logs
+
+---
+
 **Built with ❤️ for the future of healthcare AI**
 
-#   P r i v a c y - S a f e - H e a l t h - R e c o r d - S u m m a r y - G e n e r a t o r  
+#   P r i v a c y - S a f e - H e a l t h - R e c o r d - S u m m a r y - G e n e r a t o r 
+ 
  

@@ -9,11 +9,15 @@ from app.utils.logger import app_logger
 
 class RAGPipeline:
     """Retrieval-Augmented Generation pipeline for medical reports."""
-    
+
     def __init__(self):
         self.vector_store = vector_store_manager
         self.model = model_loader
-    
+
+    def is_available(self) -> bool:
+        """Check if RAG dependencies are available."""
+        return self.vector_store.is_available()
+
     def process_large_document(
         self,
         document: str,

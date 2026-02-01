@@ -12,6 +12,7 @@ class HealthResponse(BaseModel):
     model_loaded: bool = Field(..., description="Whether model is loaded")
     version: str = Field(..., description="API version")
     ml_available: bool = Field(default=True, description="Whether ML dependencies are available")
+    device: Optional[str] = Field(None, description="Device type (cuda/cpu)")
 
 
 class SummaryResponse(BaseModel):

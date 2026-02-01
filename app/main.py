@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
     # Check if ML dependencies are available
     if not model_loader.is_available():
         app_logger.warning("ML dependencies not available. API will run in limited mode.")
-        app_logger.warning("To enable ML features, install: pip install torch transformers accelerate bitsandbytes")
+        app_logger.warning("To enable ML features, install: pip install llama-cpp-python")
     else:
         # Load model on startup
         try:
