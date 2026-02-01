@@ -1111,6 +1111,12 @@ tail -f logs/app.log
 
 **Built with ❤️ for the future of healthcare AI**
 
+<<<<<<< HEAD
 #   P r i v a c y - S a f e - H e a l t h - R e c o r d - S u m m a r y - G e n e r a t o r 
  
  
+=======
+#   P r i v a c y - S a f e - H e a l t h - R e c o r d - S u m m a r y - G e n e r a t o r 
+ 
+ 
+>>>>>>> 839ceac04bbdf88c85e621c89974b784ce3782ea
